@@ -2,3 +2,4 @@
 data/*
 analyses/*
 .env
+*.test.sh
