@@ -1,1 +1,4 @@
 .megaignore
+data/*
+analyses/*
+.env
