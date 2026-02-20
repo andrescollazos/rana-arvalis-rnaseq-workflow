@@ -5,8 +5,7 @@
 #SBATCH -e %x.%A_%a.er
 #SBATCH -o %x.%A_%a.out
 #SBATCH --array=0-68
-#SBATCH -t 3:00:00
-#SBATCH --nodes=1
+#SBATCH -t 4:30:00
 #SBATCH --cpus-per-task=32
 #SBATCH --mail-type=ALL
 
@@ -14,7 +13,7 @@ module load STAR/2.7.11b-GCC-13.3.0
 source ../../.env
 
 manifest="$meta_data/01_mapping/reads_manifest.tsv"
-line=$(sed -n "$((SLURM_ARRAY_TASK_ID+2))p" "$manifest")
+line=$(sed -n "$((SLURM_ARRAY_TASK_ID+1))p" "$manifest")
 read1=$(echo "$line" | cut -f1)
 read2=$(echo "$line" | cut -f2)
 sample_id=$(echo "$line" | cut -f3)
@@ -28,4 +27,4 @@ STAR \
   --readFilesCommand zcat \
   --twopassMode Basic \
   --outFileNamePrefix "$sample_folder/" \
-  --outSAMtype BAM SortedByCoordinate
+  --outSAMtype BAM Unsorted
