@@ -9,7 +9,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --mail-type=ALL
 
-module load samtools/1.20
+module load SAMtools/1.22-GCC-13.3.0
 source ../../.env
 
 manifest="$meta_data/01_mapping/reads_manifest_sort.tsv"

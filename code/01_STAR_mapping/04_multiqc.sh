@@ -5,7 +5,7 @@
 #SBATCH -e %x.%A_%a.er
 #SBATCH -o %x.%A_%a.out
 #SBATCH -t 30:00
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=2
 #SBATCH --mail-type=ALL
 
 module load MultiQC/1.28-foss-2024a
