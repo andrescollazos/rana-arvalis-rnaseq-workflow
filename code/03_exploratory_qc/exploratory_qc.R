@@ -242,7 +242,7 @@ dev.off()
 
 
 # -----------------------------------------------------------------------------
-# Density analysis
+# 6. Density analysis
 
 # Variance stabilizing transformation
 vsd <- vst(dds, blind = FALSE)
@@ -289,5 +289,49 @@ p_raw_interactive <- ggplotly(p_raw)
 
 # Save as HTML
 saveWidget(p_raw_interactive, "raw_density_plot.html", selfcontained = TRUE)
+
+# Make x-order stable (use the current column order from the matrices)
+vst_df$sample <- factor(vst_df$sample, levels = colnames(vst_mat))
+raw_df$sample <- factor(raw_df$sample, levels = colnames(log_raw_mat))
+
+p_vst_iqr <- ggplot(vst_df, aes(x = sample, y = expression)) +
+  geom_boxplot(
+    outlier.colour = "red",
+    outlier.size = 1.5,
+    fill = "#4F9BD4",
+    color = "#2C6FA3",
+    alpha = 0.6,
+    width = 0.6
+  ) +
+  stat_boxplot(geom = "errorbar", width = 0.25, color = "#2C6FA3") +
+  labs(x = "samples", y = "logcount") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    panel.grid.minor = element_blank()
+  )
+
+p_raw_iqr <- ggplot(raw_df, aes(x = sample, y = expression)) +
+  geom_boxplot(
+    outlier.colour = "red",
+    outlier.size = 1.5,
+    fill = "#4F9BD4",
+    color = "#2C6FA3",
+    alpha = 0.6,
+    width = 0.6
+  ) +
+  stat_boxplot(geom = "errorbar", width = 0.25, color = "#2C6FA3") +
+  labs(x = "samples", y = "log2(count + 1)") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    panel.grid.minor = element_blank()
+  )
+
+# One PDF with two pages (landscape helps with ~70 samples)
+pdf("../../analyses/03_exploratory_qc/IQR_plots.pdf", width = 14, height = 8.5, onefile = TRUE)
+print(p_vst_iqr)
+print(p_raw_iqr)
+dev.off()
 
 # -----------------------------------------------------------------------------
