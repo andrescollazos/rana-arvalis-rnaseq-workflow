@@ -37,7 +37,7 @@ meta$population <- factor(meta$population)
 meta$temperature <- factor(meta$temperature)
 
 # --------------------------------------------------------------
-# Library Size Plot (Before normalization)
+# 1. Library Size Plot (Before normalization)
 
 ## Compute library sizes (total counts per sample)
 library_sizes <- colSums(counts)
@@ -121,7 +121,7 @@ text(
 dev.off()
 
 # -----------------------------------------------------------------------------
-# Dataset and Low-count filtering
+# 2. Dataset and Low-count filtering
 library(DESeq2)
 
 dds <- DESeqDataSetFromMatrix(
@@ -186,7 +186,63 @@ hist(
 dev.off()
 
 # -----------------------------------------------------------------------------
-# DENSITY ANALYSIS
+# 3. Gene detection rate per sample (post-filtering)
+
+## 1) Detection counts and percentages (on filtered dds)
+detected_genes <- colSums(counts(dds) > 0)
+detected_pct <- 100 * detected_genes / nrow(dds)
+
+## Store in metadata
+meta$detected_genes <- detected_genes[rownames(meta)]
+meta$detected_pct <- detected_pct[rownames(meta)]
+
+## 2) Barplot: detected genes, ordered by population then within-population
+pop <- meta$population
+ord <- order(pop, meta$detected_genes, decreasing = TRUE)
+
+## Colors by population (reuse your approach)
+pop_levels <- unique(pop)
+pop_colors <- setNames(rainbow(length(pop_levels)), pop_levels)
+bar_cols <- pop_colors[as.character(pop[ord])]
+
+pdf("../../analyses/03_exploratory_qc/gene_detection_rate.pdf", width = 18, height = 10)
+
+par(mar = c(12, 5, 4, 10), xpd = NA)
+
+bp_det_pct <- barplot(
+  meta$detected_pct[ord],
+  col = bar_cols,
+  border = NA,
+  xaxt = "n",
+  ylab = "Detected genes (%)",
+  main = "Percent gene detection per sample"
+)
+
+axis(
+  side = 1,
+  at = bp_det_pct,
+  labels = rownames(meta)[ord],
+  las = 2,
+  cex.axis = 0.7,
+  tick = FALSE
+)
+
+legend(
+  "topleft",
+  legend = names(pop_colors),
+  fill = pop_colors,
+  bty = "n",
+  cex = 0.9
+)
+
+dev.off()
+
+# -----------------------------------------------------------------------------
+# NORMALIZATION
+
+
+# -----------------------------------------------------------------------------
+# Density analysis
 
 # Variance stabilizing transformation
 vsd <- vst(dds, blind = FALSE)
