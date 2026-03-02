@@ -341,3 +341,40 @@ print(p_raw_iqr)
 dev.off()
 
 # -----------------------------------------------------------------------------
+# Correlation analysis
+
+source("correlation_analysis.R")
+
+run_and_save <- function(vst_sub, meta_sub, prefix, plot_title,
+                         outdir = "../../analyses/03_exploratory_qc/") {
+  # BASELINE
+  res_baseline <- run_correlation_analysis(
+    vsd_mat = vst_sub,
+    meta = meta_sub,
+    gene_mode = "baseline",
+    palette_mode = "red_white",
+    plot_title = paste0(plot_title, " | Pearson correlation heatmap (All genes)")
+  )
+
+  res_baseline$plot_heatmap(
+    file.path(outdir, paste0(prefix, "_baseline_heatmap.jpg"))
+  )
+
+  # TOP VARIABLE
+  res_topvar <- run_correlation_analysis(
+    vsd_mat = vst_sub,
+    meta = meta_sub,
+    gene_mode = "top_variable",
+    scale_min = 0,
+    scale_max = 1,
+    palette_mode = "purple_yellow",
+    plot_title = paste0(plot_title, " | Pearson correlation heatmap (Top variable genes)")
+  )
+
+  res_topvar$plot_heatmap(
+    file.path(outdir, paste0(prefix, "_topvar_heatmap.jpg"))
+  )
+
+  invisible(NULL)
+}
+run_and_save(vst_mat, meta, "all_samples", plot_title = "All samples")

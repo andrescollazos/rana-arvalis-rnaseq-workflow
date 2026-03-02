@@ -5,7 +5,8 @@ run_correlation_analysis <- function(
   cluster_method = "average",
   scale_min = 0.79,
   scale_max = 1,
-  palette_mode = c("red_white", "purple_yellow")
+  palette_mode = c("red_white", "purple_yellow"),
+  plot_title = "Correlation Heatmap"
 ) {
     gene_mode <- match.arg(gene_mode)
     color_values <- if (palette_mode == "red_white") {
@@ -103,7 +104,12 @@ run_correlation_analysis <- function(
 
         if (!is.null(file)) jpeg(file, width = width, height = height, res = res)
 
-        pheatmap::pheatmap(
+        summary_label <- paste0(
+            "Mean sample Pearson correlation | Within: ", round(summary_tbl$mean_correlation[1], 4),
+            " | Between: ", round(summary_tbl$mean_correlation[2], 4)
+        )
+
+        pheatmap_obj <- pheatmap::pheatmap(
             cor_ord,
             cluster_rows = hc,
             cluster_cols = hc,
@@ -111,25 +117,36 @@ run_correlation_analysis <- function(
             annotation_row = annotation_df,
             annotation_colors = annotation_colors,
             color = color_values,
-            breaks = seq(scale_min, scale_max, length.out = 101), # FIXED SCALE
+            breaks = seq(scale_min, scale_max, length.out = 101),
             border_color = NA,
             legend = TRUE,
             show_rownames = TRUE,
             show_colnames = TRUE,
-            fontsize_row = 9, # larger labels
+            fontsize_row = 9,
             fontsize_col = 6,
             angle_col = 90,
-            treeheight_row = 80, # larger dendrogram space
-            treeheight_col = 80
+            treeheight_row = 80,
+            treeheight_col = 80,
+            main = plot_title,
+            silent = TRUE
+        )
+
+        grid::grid.newpage()
+        grid::grid.draw(pheatmap_obj$gtable)
+
+        # Add summary text BELOW the heatmap
+        grid::grid.text(
+            summary_label,
+            x = 0.5,
+            y = 0.01,
+            just = c("center", "bottom"),
+            gp = grid::gpar(fontsize = 12)
         )
 
         if (!is.null(file)) dev.off()
     }
 
     list(
-        cor_matrix = cor_ord,
-        pairwise_table = pairwise_tbl,
-        summary_stats = summary_tbl,
         plot_heatmap = heatmap_plot
     )
 }
