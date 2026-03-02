@@ -86,7 +86,6 @@ run_correlation_analysis <- function(
                 "NA" = "#6f9fe2ff",
                 "NL" = "#59FFC0",
                 "VF" = "#6a3d9a",
-                "C_Fin" = "#FF33E4",
                 "C.Fin" = "#FF33E4",
                 "E" = "#B7FF5E",
                 "L" = "#00CDFF"
