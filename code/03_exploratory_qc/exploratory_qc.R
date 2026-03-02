@@ -35,6 +35,12 @@ meta$family <- factor(meta$family)
 meta$stage <- factor(meta$stage)
 meta$population <- factor(meta$population)
 meta$temperature <- factor(meta$temperature)
+meta$region <- ifelse(meta$population %in% c("C.Fin", "E", "L"), "East",
+  ifelse(meta$population %in% c("Ka", "Upp"), "South",
+    ifelse(meta$population %in% c("NA", "NL", "VF"), "North", NA)
+  )
+)
+meta$region <- factor(meta$region)
 
 # --------------------------------------------------------------
 # 1. Library Size Plot (Before normalization)
