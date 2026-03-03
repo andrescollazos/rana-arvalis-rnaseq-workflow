@@ -260,7 +260,7 @@ dev.off()
 # 6. Density analysis
 
 # Variance stabilizing transformation
-vsd <- vst(dds, blind = FALSE)
+vsd <- vst(dds, blind = TRUE)
 
 # Extract VST matrix
 vst_mat <- assay(vsd)
