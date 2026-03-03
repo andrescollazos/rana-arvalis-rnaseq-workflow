@@ -341,7 +341,7 @@ print(p_raw_iqr)
 dev.off()
 
 # -----------------------------------------------------------------------------
-# Correlation analysis
+# 7. Correlation analysis
 
 source("correlation_analysis.R")
 
@@ -383,7 +383,12 @@ run_and_save(vst_mat, meta, "all_samples", plot_title = "All samples")
 ## South and North (Swedish-only samples)
 meta_SN <- meta[meta$region %in% c("South", "North"), , drop = FALSE]
 vst_SN <- vst_mat[, rownames(meta_SN), drop = FALSE]
-run_and_save(vst_SN, meta_SN, "swedish_samples", plot_title = "Swedish samples")
+run_and_save(
+  vst_SN,
+  meta_SN,
+  "swedish_samples",
+  plot_title = "Swedish samples"
+)
 
 ## Per population
 populations <- c("NA", "NL", "VF", "Ka", "Upp", "C.Fin", "E", "L")
@@ -392,15 +397,13 @@ for (pop in populations) {
   meta_sub <- meta[meta$population == pop, , drop = FALSE]
   vst_sub <- vst_mat[, rownames(meta_sub), drop = FALSE]
 
-  run_and_save(vst_sub, meta_sub, paste0("population_", pop), plot_title = paste0("Population ", pop))
+  run_and_save(
+    vst_sub,
+    meta_sub,
+    paste0("population_", pop),
+    plot_title = paste0("Population ", pop)
+  )
 }
 
-## Per temperature
-temps <- c("15", "20")
-
-for (temp in temps) {
-  meta_sub <- meta[meta$temperature == temp, , drop = FALSE]
-  vst_sub <- vst_mat[, rownames(meta_sub), drop = FALSE]
-
-  run_and_save(vst_sub, meta_sub, paste0("temperature_", temp), plot_title = paste0("Temperature ", temp))
-}
+# -----------------------------------------------------------------------------
+# 8. PCA
