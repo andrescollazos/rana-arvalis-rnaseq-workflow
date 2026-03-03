@@ -75,9 +75,17 @@ lib_m <- lib / 1e6
 median_reads <- median(lib_m)
 
 ## Colors by population
-pop_levels <- unique(pop)
-pop_colors <- setNames(rainbow(length(pop_levels)), pop_levels)
-bar_cols <- pop_colors[pop]
+population <- c(
+  "C.Fin" = "#FF33E4",
+  "E" = "#B7FF5E",
+  "Ka" = "#FFDE52",
+  "L" = "#00CDFF",
+  "NA" = "#6f9fe2ff",
+  "NL" = "#59FFC0",
+  "Upp" = "#FF7070",
+  "VF" = "#6a3d9a"
+)
+bar_cols <- population[pop]
 
 pdf("../../analyses/03_exploratory_qc/total_read_counts_before_normalization_barplot.pdf",
   width = 12, height = 6
@@ -104,8 +112,8 @@ abline(h = half_median_reads, col = "black", lwd = 2, lty = 3)
 
 legend(
   "topleft",
-  legend = pop_levels,
-  fill = pop_colors,
+  legend = names(population),
+  fill = population,
   border = NA,
   bty = "n",
   cex = 0.8
@@ -235,10 +243,11 @@ axis(
 
 legend(
   "topleft",
-  legend = names(pop_colors),
-  fill = pop_colors,
+  legend = names(population),
+  fill = population,
+  border = NA,
   bty = "n",
-  cex = 0.9
+  cex = 0.8
 )
 
 dev.off()
@@ -517,3 +526,11 @@ source("PCA_regression.R")
 reg_baseline <- run_pca_regression(pca_baseline, n_pcs = 5)
 reg_top500 <- run_pca_regression(pca_top500, n_pcs = 5)
 reg_top100 <- run_pca_regression(pca_topvar, n_pcs = 5)
+
+# -----------------------------------------------------------------------------
+# 10. Mean-variance trend
+dds <- estimateSizeFactors(dds)
+dds <- estimateDispersions(dds)
+pdf("../../analyses/03_exploratory_qc/10_mean_variance_trend.pdf")
+plotDispEsts(dds)
+dev.off()
