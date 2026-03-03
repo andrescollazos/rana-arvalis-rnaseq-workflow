@@ -407,3 +407,65 @@ for (pop in populations) {
 
 # -----------------------------------------------------------------------------
 # 8. PCA
+
+source("PCA.R")
+
+## 8.1 All samples
+
+pca_baseline <- make_pca_plots(
+  vsd_mat = vst_mat,
+  meta = meta,
+  gene_mode = "baseline",
+  plot_title = "PCA (All filtered genes)"
+)
+
+ggsave(
+  filename = "../../analyses/03_exploratory_qc/08_PCA_baseline.pdf",
+  plot = gridExtra::marrangeGrob(
+    grobs = pca_baseline$plots,
+    nrow = 2,
+    ncol = 1
+  ),
+  width = 10,
+  height = 12
+)
+
+## 8.2 Top variable genes
+
+pca_topvar <- make_pca_plots(
+  vsd_mat = vst_mat,
+  meta = meta,
+  gene_mode = "top_variable_100",
+  plot_title = "PCA (Top 100 variable genes)"
+)
+
+ggsave(
+  filename = "../../analyses/03_exploratory_qc/08_PCA_topvar_100.pdf",
+  plot = gridExtra::marrangeGrob(
+    grobs = pca_topvar$plots,
+    nrow = 2,
+    ncol = 1
+  ),
+  width = 10,
+  height = 12
+)
+
+## 8.3 Top variable genes
+
+pca_topvar <- make_pca_plots(
+  vsd_mat = vst_mat,
+  meta = meta,
+  gene_mode = "top_variable_500",
+  plot_title = "PCA (Top 500 variable genes)"
+)
+
+ggsave(
+  filename = "../../analyses/03_exploratory_qc/08_PCA_topvar_500.pdf",
+  plot = gridExtra::marrangeGrob(
+    grobs = pca_topvar$plots,
+    nrow = 2,
+    ncol = 1
+  ),
+  width = 10,
+  height = 12
+)
