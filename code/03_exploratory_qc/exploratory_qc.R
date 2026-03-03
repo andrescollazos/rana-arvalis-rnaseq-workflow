@@ -465,7 +465,7 @@ write.table(
 
 ## 8.3 Top variable genes
 
-pca_topvar <- make_pca_plots(
+pca_top500 <- make_pca_plots(
   vsd_mat = vst_mat,
   meta = meta,
   gene_mode = "top_variable_500",
@@ -475,7 +475,7 @@ pca_topvar <- make_pca_plots(
 ggsave(
   filename = "../../analyses/03_exploratory_qc/08_PCA_topvar_500.pdf",
   plot = gridExtra::marrangeGrob(
-    grobs = pca_topvar$plots,
+    grobs = pca_top500$plots,
     nrow = 2,
     ncol = 1
   ),
@@ -484,7 +484,7 @@ ggsave(
 )
 
 write.table(
-  pca_topvar$pca_variance,
+  pca_top500$pca_variance,
   "../../analyses/03_exploratory_qc/08_PCA_topvar_500_variance.tsv",
   sep = "\t", quote = FALSE, row.names = FALSE
 )
@@ -508,3 +508,12 @@ ggsave(
   width = 10,
   height = 12
 )
+
+# -----------------------------------------------------------------------------
+# 9. Regression of Top PCs on biological and technical variables
+
+source("PCA_regression.R")
+
+reg_baseline <- run_pca_regression(pca_baseline, n_pcs = 5)
+reg_top500 <- run_pca_regression(pca_top500, n_pcs = 5)
+reg_top100 <- run_pca_regression(pca_topvar, n_pcs = 5)
