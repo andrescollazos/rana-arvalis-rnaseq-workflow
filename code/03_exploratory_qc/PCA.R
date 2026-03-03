@@ -2,9 +2,11 @@ make_pca_plots <- function(
   vsd_mat,
   meta,
   gene_mode = c("baseline", "top_variable_100", "top_variable_500"),
-  plot_title = ""
+  plot_title = "",
+  mode = c("color", "extraction_date")
 ) {
     gene_mode <- match.arg(gene_mode)
+    mode <- match.arg(mode)
 
     # ----------------------------
     # 1. Gene selection
@@ -47,32 +49,51 @@ make_pca_plots <- function(
     stopifnot(all(pca_df$sample == scores$sample))
 
     # ----------------------------
-    # 3. Region x temperature colors
+    # 3. Coloring Logic
     # ----------------------------
-    pca_df$region_temp_label <- paste0(
-        as.character(pca_df$region),
-        " ",
-        as.character(pca_df$temperature),
-        "\u00B0C"
-    )
+    if (mode == "extraction_date") {
+        # Using a distinct palette for extraction date (3 levels)
+        date_levels <- sort(unique(as.character(pca_df$extraction_date)))
+        date_palette <- c("#E41A1C", "#377EB8", "#4DAF4A") # Red, Blue, Green
 
-    color_map <- c(
-        "South 20\u00B0C" = "red4",
-        "South 15\u00B0C" = "violetred1",
-        "North 20\u00B0C" = "blue",
-        "North 15\u00B0C" = "deepskyblue3",
-        "East 20\u00B0C"  = "#088000",
-        "East 15\u00B0C"  = "#5DBD56"
-    )
+        if (length(date_levels) > length(date_palette)) {
+            date_palette <- rainbow(length(date_levels))
+        }
 
-    pca_df$color <- unname(color_map[pca_df$region_temp_label])
+        color_map <- setNames(date_palette[1:length(date_levels)], date_levels)
+        pca_df$color_label <- as.character(pca_df$extraction_date)
+        pca_df$color <- unname(color_map[pca_df$color_label])
+        legend_name <- "Extraction date"
+    } else {
+        # Default: Region x temperature
+        pca_df$region_temp_label <- paste0(
+            as.character(pca_df$region),
+            " ",
+            as.character(pca_df$temperature),
+            "\u00B0C"
+        )
+
+        color_map <- c(
+            "South 20\u00B0C" = "red4",
+            "South 15\u00B0C" = "violetred1",
+            "North 20\u00B0C" = "blue",
+            "North 15\u00B0C" = "deepskyblue3",
+            "East 20\u00B0C"  = "#088000",
+            "East 15\u00B0C"  = "#5DBD56"
+        )
+
+        pca_df$color <- unname(color_map[pca_df$region_temp_label])
+        legend_name <- "Region x temperature"
+    }
 
     # ----------------------------
     # 4. Shape mapping & Labeling
     # ----------------------------
-    populations <- unique(pca_df$population)
-    pch_map <- setNames(seq_along(populations), populations)
-    pca_df$shape <- pch_map[pca_df$population]
+    if (mode != "extraction_date") {
+        populations <- unique(pca_df$population)
+        pch_map <- setNames(seq_along(populations), populations)
+        pca_df$shape <- pch_map[pca_df$population]
+    }
 
     # Specific samples to label
     labeled_samples <- c("P32262_306", "P32262_274", "P32262_272", "P32262_248")
@@ -94,7 +115,7 @@ make_pca_plots <- function(
             geom_vline(xintercept = 0, linetype = "dashed", color = "grey70", linewidth = 0.6) +
             geom_hline(yintercept = 0, linetype = "dashed", color = "grey70", linewidth = 0.6) +
             geom_point(
-                aes(color = color, shape = population),
+                aes(color = color, shape = if (mode != "extraction_date") population else NULL),
                 size = 3
             ) +
             geom_text_repel(
@@ -108,20 +129,24 @@ make_pca_plots <- function(
             ) +
             scale_color_identity(
                 guide = "legend",
-                name = "Region x temperature",
+                name = legend_name,
                 breaks = unname(color_map),
                 labels = names(color_map)
-            ) +
-            scale_shape_manual(
+            )
+
+        if (mode != "extraction_date") {
+            p <- p + scale_shape_manual(
                 values = pch_map,
                 name = "Population",
                 na.translate = FALSE
-            ) +
-            labs(
-                title = plot_title,
-                x = paste0(xpc, " (", round(pc_pct[i], 2), "%)"),
-                y = paste0(ypc, " (", round(pc_pct[i + 1], 2), "%)")
-            ) +
+            )
+        }
+
+        p <- p + labs(
+            title = plot_title,
+            x = paste0(xpc, " (", round(pc_pct[i], 2), "%)"),
+            y = paste0(ypc, " (", round(pc_pct[i + 1], 2), "%)")
+        ) +
             theme_classic(base_size = 14) +
             theme(
                 panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.8),

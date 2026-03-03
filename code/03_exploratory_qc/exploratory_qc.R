@@ -488,3 +488,23 @@ write.table(
   "../../analyses/03_exploratory_qc/08_PCA_topvar_500_variance.tsv",
   sep = "\t", quote = FALSE, row.names = FALSE
 )
+
+# 8.4 Extraction date
+pca_exdate <- make_pca_plots(
+  vsd_mat = vst_mat,
+  meta = meta,
+  gene_mode = "top_variable_100",
+  plot_title = "PCA (Top 100 variable genes)",
+  mode = "extraction_date"
+)
+
+ggsave(
+  filename = "../../analyses/03_exploratory_qc/08_PCA_exdate_100.pdf",
+  plot = gridExtra::marrangeGrob(
+    grobs = pca_exdate$plots,
+    nrow = 2,
+    ncol = 1
+  ),
+  width = 10,
+  height = 12
+)
