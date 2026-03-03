@@ -408,6 +408,7 @@ for (pop in populations) {
 # -----------------------------------------------------------------------------
 # 8. PCA
 
+library(ggrepel)
 source("PCA.R")
 
 ## 8.1 All samples
@@ -430,6 +431,12 @@ ggsave(
   height = 12
 )
 
+write.table(
+  pca_baseline$pca_variance,
+  "../../analyses/03_exploratory_qc/08_PCA_baseline_variance.tsv",
+  sep = "\t", quote = FALSE, row.names = FALSE
+)
+
 ## 8.2 Top variable genes
 
 pca_topvar <- make_pca_plots(
@@ -450,6 +457,12 @@ ggsave(
   height = 12
 )
 
+write.table(
+  pca_topvar$pca_variance,
+  "../../analyses/03_exploratory_qc/08_PCA_topvar_100_variance.tsv",
+  sep = "\t", quote = FALSE, row.names = FALSE
+)
+
 ## 8.3 Top variable genes
 
 pca_topvar <- make_pca_plots(
@@ -468,4 +481,10 @@ ggsave(
   ),
   width = 10,
   height = 12
+)
+
+write.table(
+  pca_topvar$pca_variance,
+  "../../analyses/03_exploratory_qc/08_PCA_topvar_500_variance.tsv",
+  sep = "\t", quote = FALSE, row.names = FALSE
 )

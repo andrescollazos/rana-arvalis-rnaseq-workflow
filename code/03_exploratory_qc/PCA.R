@@ -68,11 +68,15 @@ make_pca_plots <- function(
     pca_df$color <- unname(color_map[pca_df$region_temp_label])
 
     # ----------------------------
-    # 4. Shape mapping (EXACT SAME LOGIC)
+    # 4. Shape mapping & Labeling
     # ----------------------------
     populations <- unique(pca_df$population)
     pch_map <- setNames(seq_along(populations), populations)
     pca_df$shape <- pch_map[pca_df$population]
+
+    # Specific samples to label
+    labeled_samples <- c("P32262_306", "P32262_274", "P32262_272", "P32262_248")
+    pca_df$label <- ifelse(pca_df$sample %in% labeled_samples, as.character(pca_df$sample), NA)
 
     # ----------------------------
     # 5. Build PC1vsPC2 ... PC5vsPC6
@@ -92,6 +96,15 @@ make_pca_plots <- function(
             geom_point(
                 aes(color = color, shape = population),
                 size = 3
+            ) +
+            geom_text_repel(
+                aes(label = label),
+                size = 3.5,
+                box.padding = 0.5,
+                point.padding = 0.3,
+                min.segment.length = 0,
+                max.overlaps = Inf,
+                show.legend = FALSE
             ) +
             scale_color_identity(
                 guide = "legend",
@@ -119,9 +132,19 @@ make_pca_plots <- function(
         plots[[i]] <- p
     }
 
+    # ----------------------------
+    # 6. Variance Explained Summary
+    # ----------------------------
+    pca_variance <- data.frame(
+        PC = paste0("PC", seq_along(pc_pct)),
+        variance_explained_pct = pc_pct,
+        cumulative_variance_pct = cumsum(pc_pct)
+    )
+
     return(list(
         pca_df = pca_df,
         pc_pct = pc_pct,
+        pca_variance = pca_variance,
         plots = plots
     ))
 }
