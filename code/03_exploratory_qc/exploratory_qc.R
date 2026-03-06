@@ -350,7 +350,7 @@ print(p_raw_iqr)
 dev.off()
 
 # -----------------------------------------------------------------------------
-# 7. Correlation analysis
+# 7. Sample Correlation Heatmaps
 
 source("correlation_analysis.R")
 
@@ -517,6 +517,30 @@ ggsave(
   width = 10,
   height = 12
 )
+
+## 8.5 Per population (All filtered genes)
+populations_order <- c("C.Fin", "E", "Ka", "L", "NA", "NL", "Upp", "VF")
+
+for (pop in populations_order) {
+  pca_pop <- make_pca_plots(
+    vsd_mat = vst_mat,
+    meta = meta,
+    gene_mode = "baseline",
+    plot_title = paste0("PCA - Population ", pop, " (All filtered genes)"),
+    population = pop
+  )
+
+  ggsave(
+    filename = paste0("../../analyses/03_exploratory_qc/PCA_per_population/08_PCA_population_", pop, "_baseline.pdf"),
+    plot = gridExtra::marrangeGrob(
+      grobs = pca_pop$plots,
+      nrow = 2,
+      ncol = 1
+    ),
+    width = 10,
+    height = 12
+  )
+}
 
 # -----------------------------------------------------------------------------
 # 9. Regression of Top PCs on biological and technical variables

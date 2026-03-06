@@ -3,10 +3,19 @@ make_pca_plots <- function(
   meta,
   gene_mode = c("baseline", "top_variable_100", "top_variable_500"),
   plot_title = "",
-  mode = c("color", "extraction_date")
+  mode = c("color", "extraction_date"),
+  population = NULL
 ) {
     gene_mode <- match.arg(gene_mode)
     mode <- match.arg(mode)
+
+    # ----------------------------
+    # 0. Filter by population (if requested)
+    # ----------------------------
+    if (!is.null(population)) {
+        meta <- meta[meta$population == population, , drop = FALSE]
+        vsd_mat <- vsd_mat[, meta$sample, drop = FALSE]
+    }
 
     # ----------------------------
     # 1. Gene selection
@@ -89,15 +98,22 @@ make_pca_plots <- function(
     # ----------------------------
     # 4. Shape mapping & Labeling
     # ----------------------------
+    # Define fixed shape mapping for populations
+    all_pops <- c("C.Fin", "E", "Ka", "L", "NA", "NL", "Upp", "VF")
+    pch_map <- setNames(seq_along(all_pops), all_pops)
+
     if (mode != "extraction_date") {
-        populations <- unique(pca_df$population)
-        pch_map <- setNames(seq_along(populations), populations)
-        pca_df$shape <- pch_map[pca_df$population]
+        pca_df$shape <- pch_map[as.character(pca_df$population)]
     }
+
 
     # Specific samples to label
     labeled_samples <- c("P32262_306", "P32262_274", "P32262_272", "P32262_248")
     pca_df$label <- ifelse(pca_df$sample %in% labeled_samples, as.character(pca_df$sample), NA)
+
+    # Define point aesthetics: bold if population is set
+    pt_size <- if (!is.null(population)) 4 else 3
+    pt_stroke <- if (!is.null(population)) 1.2 else 0.5
 
     # ----------------------------
     # 5. Build PC1vsPC2 ... PC5vsPC6
@@ -116,7 +132,8 @@ make_pca_plots <- function(
             geom_hline(yintercept = 0, linetype = "dashed", color = "grey70", linewidth = 0.6) +
             geom_point(
                 aes(color = color, shape = if (mode != "extraction_date") population else NULL),
-                size = 3
+                size = pt_size,
+                stroke = pt_stroke
             ) +
             geom_text_repel(
                 aes(label = label),
