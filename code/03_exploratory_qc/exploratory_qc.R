@@ -518,15 +518,17 @@ ggsave(
   height = 12
 )
 
-## 8.5 Per population (All filtered genes)
+## 8.5 Per population (Top 100 variable genes)
+source("PCA_regression_pop.R")
 populations_order <- c("C.Fin", "E", "Ka", "L", "NA", "NL", "Upp", "VF")
 
+reg_top100_pop <- list()
 for (pop in populations_order) {
   pca_pop <- make_pca_plots(
     vsd_mat = vst_mat,
     meta = meta,
-    gene_mode = "baseline",
-    plot_title = paste0("PCA - Population ", pop, " (All filtered genes)"),
+    gene_mode = "top_variable_100",
+    plot_title = paste0("PCA - Population ", pop, " (Top 100 variable genes)"),
     population = pop
   )
 
@@ -540,7 +542,10 @@ for (pop in populations_order) {
     width = 10,
     height = 12
   )
+
+  reg_top100_pop[[pop]] <- run_pca_regression_pop(pca_pop, n_pcs = 5)
 }
+
 
 # -----------------------------------------------------------------------------
 # 9. Regression of Top PCs on biological and technical variables
