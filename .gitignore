@@ -5,3 +5,5 @@ analyses/*
 *.test.sh
 *.Rhistory
 *.RData
+*.RDataTmp
+*.lintr
