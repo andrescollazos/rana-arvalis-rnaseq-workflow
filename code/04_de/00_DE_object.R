@@ -39,7 +39,11 @@ rownames(meta) <- as.character(meta$sample)
 meta$family <- factor(meta$family)
 meta$stage <- factor(meta$stage)
 meta$population <- factor(meta$population)
+meta$population <- relevel(meta$population, ref = "VF")
 meta$temperature <- factor(meta$temperature)
+meta$temperature <- relevel(meta$temperature, ref = "15")
+# Populations
+populations <- c("C.Fin", "E", "Ka", "L", "NA", "NL", "Upp", "VF")
 
 # -----------------------------------------------------------------------------
 # 2. Dataset and Low-count filtering
@@ -51,20 +55,13 @@ dds <- DESeqDataSetFromMatrix(
     design = ~ family + stage + population * temperature
 )
 
-min_group_size <- min(table(meta$population))
+min_group_size <- min(table(meta$population, meta$temperature))
 keep <- rowSums(counts(dds) >= 10) >= (0.5 * min_group_size)
 dds <- dds[keep, ]
 
-# -----------------------------------------------------------------------------
-# 3. Define reference levels
-# dds$population <- relevel(dds$population, ref = "VF")
-# dds$temperature <- relevel(dds$temperature, ref = "15")
+levels(colData(dds)$population)
+levels(colData(dds)$temperature)
 
 # -----------------------------------------------------------------------------
-# 4. Run DESeq2
-dds <- DESeq(dds)
-resultsNames(dds)
-
-# -----------------------------------------------------------------------------
-# 5. Save data
-save.image("dds2.RData")
+# 3. Save data
+save.image("dds.RData")
