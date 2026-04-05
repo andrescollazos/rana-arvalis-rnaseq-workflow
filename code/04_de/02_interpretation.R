@@ -211,3 +211,51 @@ temp_summary_table <- data.frame(
         var(abs(lfc_mat[idx, pop]))
     })
 )
+
+# -----------------------------
+# 4. Concordant vs discordant plasticity
+# -----------------------------
+
+# restrict to interaction genes
+lfc_int <- lfc_mat[interaction_genes, ]
+padj_int <- padj_mat[interaction_genes, ]
+
+# direction matrix
+dir_mat <- matrix(NA, nrow = nrow(lfc_int), ncol = ncol(lfc_int))
+rownames(dir_mat) <- rownames(lfc_int)
+colnames(dir_mat) <- colnames(lfc_int)
+
+for (i in seq_len(nrow(lfc_int))) {
+    for (j in seq_len(ncol(lfc_int))) {
+        if (!is.na(padj_int[i, j]) && padj_int[i, j] < 0.05) {
+            dir_mat[i, j] <- sign(lfc_int[i, j])
+        }
+    }
+}
+
+# classify genes
+class_vec <- rep(NA, nrow(dir_mat))
+names(class_vec) <- rownames(dir_mat)
+
+for (i in seq_len(nrow(dir_mat))) {
+    vals <- dir_mat[i, ]
+    vals <- vals[!is.na(vals)]
+
+    if (length(vals) < 2) {
+        next
+    }
+
+    if (all(vals == 1) || all(vals == -1)) {
+        class_vec[i] <- "concordant"
+    } else if (any(vals == 1) && any(vals == -1)) {
+        class_vec[i] <- "discordant"
+    }
+}
+
+# extract gene sets
+concordant_genes <- names(class_vec)[class_vec == "concordant"]
+discordant_genes <- names(class_vec)[class_vec == "discordant"]
+
+# summary
+cat("Concordant genes:", length(concordant_genes), "\n")
+cat("Discordant genes:", length(discordant_genes), "\n")
