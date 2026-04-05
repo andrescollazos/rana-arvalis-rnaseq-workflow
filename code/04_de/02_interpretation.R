@@ -16,7 +16,7 @@ rownames(pop_annot) <- pop_annot$population
 pop_annot$population <- NULL
 
 # -----------------------------
-# 1. With column clustering
+# 1. Differential plasticity across populations in response to temperature
 # -----------------------------
 pdf("1.differential_plasticity.pdf")
 p <- pheatmap(
@@ -43,3 +43,109 @@ p2 <- pheatmap(
 )
 print(p2)
 dev.off()
+
+# -----------------------------
+# 2. Distribution of plasticity across populations (pattern prevalence)
+# -----------------------------
+library(ComplexUpset)
+library(dplyr)
+
+# Binary matrix: significant or not per population
+sig_binary <- as.data.frame(
+    sapply(populations, function(pop) {
+        !is.na(padj_mat[, pop]) & padj_mat[, pop] < 0.05
+    }),
+    stringsAsFactors = FALSE
+)
+
+sig_binary$gene_id <- rownames(padj_mat)
+
+# Keep only genes significant in at least one population
+sig_binary <- sig_binary[rowSums(sig_binary[, populations, drop = FALSE]) > 0, ]
+
+# Ensure logical columns
+sig_binary[, populations] <- lapply(sig_binary[, populations, drop = FALSE], as.logical)
+
+pdf("2.distribution_plasticity2.pdf")
+# UpSet plot
+upset(
+    sig_binary,
+    intersect = populations,
+    name = "Population",
+    base_annotations = list(
+        "Intersection size" = intersection_size(text = list(size = 3))
+    )
+)
+dev.off()
+
+# Shared plasticity across all populations
+shared_plasticity <- sig_binary$gene_id[
+    rowSums(sig_binary[, populations, drop = FALSE]) == length(populations)
+]
+
+# Population-specific plasticity
+population_specific <- lapply(populations, function(pop) {
+    others <- setdiff(populations, pop)
+
+    sig_binary$gene_id[
+        sig_binary[[pop]] &
+            rowSums(sig_binary[, others, drop = FALSE]) == 0
+    ]
+})
+
+names(population_specific) <- populations
+
+lat_north <- unique(meta$population[meta$lat_group == "North"])
+lat_south <- unique(meta$population[meta$lat_group == "South"])
+
+lin_north <- unique(meta$population[meta$lineage == "North"])
+lin_east <- unique(meta$population[meta$lineage == "East"])
+lin_south <- unique(meta$population[meta$lineage == "South"])
+
+latitude_restricted <- list(
+    North = sig_binary$gene_id[
+        rowSums(sig_binary[, lat_north, drop = FALSE]) > 0 &
+            rowSums(sig_binary[, lat_south, drop = FALSE]) == 0
+    ],
+    South = sig_binary$gene_id[
+        rowSums(sig_binary[, lat_south, drop = FALSE]) > 0 &
+            rowSums(sig_binary[, lat_north, drop = FALSE]) == 0
+    ]
+)
+
+lineage_restricted <- list(
+    North = sig_binary$gene_id[
+        rowSums(sig_binary[, lin_north, drop = FALSE]) > 0 &
+            rowSums(sig_binary[, lin_east, drop = FALSE]) == 0 &
+            rowSums(sig_binary[, lin_south, drop = FALSE]) == 0
+    ],
+    East = sig_binary$gene_id[
+        rowSums(sig_binary[, lin_east, drop = FALSE]) > 0 &
+            rowSums(sig_binary[, lin_north, drop = FALSE]) == 0 &
+            rowSums(sig_binary[, lin_south, drop = FALSE]) == 0
+    ],
+    South = sig_binary$gene_id[
+        rowSums(sig_binary[, lin_south, drop = FALSE]) > 0 &
+            rowSums(sig_binary[, lin_north, drop = FALSE]) == 0 &
+            rowSums(sig_binary[, lin_east, drop = FALSE]) == 0
+    ]
+)
+
+upset_gene_sets <- list(
+    shared_plasticity = shared_plasticity,
+    population_specific = population_specific,
+    latitude_restricted = latitude_restricted,
+    lineage_restricted = lineage_restricted
+)
+
+list_lengths <- lapply(upset_gene_sets, function(x) {
+    if (is.list(x) && !is.null(names(x))) {
+        sapply(x, length)
+    } else {
+        length(x)
+    }
+})
+
+# -----------------------------
+# 3. Per-population summaries
+# -----------------------------
