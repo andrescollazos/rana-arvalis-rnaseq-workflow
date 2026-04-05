@@ -149,3 +149,50 @@ list_lengths <- lapply(upset_gene_sets, function(x) {
 # -----------------------------
 # 3. Per-population summaries
 # -----------------------------
+
+temp_summary_table <- data.frame(
+    population = populations,
+    n_sig = sapply(populations, function(pop) {
+        sum(!is.na(padj_mat[, pop]) & padj_mat[, pop] < 0.05)
+    }),
+    n_up = sapply(populations, function(pop) {
+        sum(!is.na(padj_mat[, pop]) &
+            padj_mat[, pop] < 0.05 &
+            lfc_mat[, pop] > 0)
+    }),
+    n_down = sapply(populations, function(pop) {
+        sum(!is.na(padj_mat[, pop]) &
+            padj_mat[, pop] < 0.05 &
+            lfc_mat[, pop] < 0)
+    }),
+    mean_abs_log2FC = sapply(populations, function(pop) {
+        idx <- !is.na(padj_mat[, pop]) &
+            padj_mat[, pop] < 0.05 &
+            !is.na(lfc_mat[, pop])
+
+        if (!any(idx)) {
+            return(NA_real_)
+        }
+        mean(abs(lfc_mat[idx, pop]))
+    }),
+    median_abs_log2FC = sapply(populations, function(pop) {
+        idx <- !is.na(padj_mat[, pop]) &
+            padj_mat[, pop] < 0.05 &
+            !is.na(lfc_mat[, pop])
+
+        if (!any(idx)) {
+            return(NA_real_)
+        }
+        median(abs(lfc_mat[idx, pop]))
+    }),
+    var_abs_log2FC = sapply(populations, function(pop) {
+        idx <- !is.na(padj_mat[, pop]) &
+            padj_mat[, pop] < 0.05 &
+            !is.na(lfc_mat[, pop])
+
+        if (sum(idx) < 2) {
+            return(NA_real_)
+        }
+        var(abs(lfc_mat[idx, pop]))
+    })
+)
