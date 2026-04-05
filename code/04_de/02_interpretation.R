@@ -88,8 +88,9 @@ upset(
     intersect = populations,
     name = "Population",
     base_annotations = list(
-        "Intersection size" = intersection_size(text = list(size = 3))
-    )
+        "Intersection size" = intersection_size(text = list(size = 2))
+    ),
+    min_size = 20
 )
 dev.off()
 
@@ -117,32 +118,32 @@ lin_north <- unique(meta$population[meta$lineage == "North"])
 lin_east <- unique(meta$population[meta$lineage == "East"])
 lin_south <- unique(meta$population[meta$lineage == "South"])
 
+# Latitude-restricted (at least one in group, none outside)
 latitude_restricted <- list(
     North = sig_binary$gene_id[
-        rowSums(sig_binary[, lat_north, drop = FALSE]) > 0 &
+        rowSums(sig_binary[, lat_north, drop = FALSE]) == length(lat_north) &
             rowSums(sig_binary[, lat_south, drop = FALSE]) == 0
     ],
     South = sig_binary$gene_id[
-        rowSums(sig_binary[, lat_south, drop = FALSE]) > 0 &
+        rowSums(sig_binary[, lat_south, drop = FALSE]) == length(lat_south) &
             rowSums(sig_binary[, lat_north, drop = FALSE]) == 0
     ]
 )
 
+# Lineage-restricted (all in group, none outside)
+
 lineage_restricted <- list(
     North = sig_binary$gene_id[
-        rowSums(sig_binary[, lin_north, drop = FALSE]) > 0 &
-            rowSums(sig_binary[, lin_east, drop = FALSE]) == 0 &
-            rowSums(sig_binary[, lin_south, drop = FALSE]) == 0
+        rowSums(sig_binary[, lin_north, drop = FALSE]) == length(lin_north) &
+            rowSums(sig_binary[, setdiff(populations, lin_north), drop = FALSE]) == 0
     ],
     East = sig_binary$gene_id[
-        rowSums(sig_binary[, lin_east, drop = FALSE]) > 0 &
-            rowSums(sig_binary[, lin_north, drop = FALSE]) == 0 &
-            rowSums(sig_binary[, lin_south, drop = FALSE]) == 0
+        rowSums(sig_binary[, lin_east, drop = FALSE]) == length(lin_east) &
+            rowSums(sig_binary[, setdiff(populations, lin_east), drop = FALSE]) == 0
     ],
     South = sig_binary$gene_id[
-        rowSums(sig_binary[, lin_south, drop = FALSE]) > 0 &
-            rowSums(sig_binary[, lin_north, drop = FALSE]) == 0 &
-            rowSums(sig_binary[, lin_east, drop = FALSE]) == 0
+        rowSums(sig_binary[, lin_south, drop = FALSE]) == length(lin_south) &
+            rowSums(sig_binary[, setdiff(populations, lin_south), drop = FALSE]) == 0
     ]
 )
 
@@ -160,6 +161,8 @@ list_lengths <- lapply(upset_gene_sets, function(x) {
         length(x)
     }
 })
+
+list_lengths
 
 # -----------------------------
 # 3. Per-population summaries
