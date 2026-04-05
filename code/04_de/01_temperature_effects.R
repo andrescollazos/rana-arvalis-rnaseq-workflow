@@ -56,6 +56,8 @@ temp_genes_by_pop <- lapply(populations, function(pop) {
 })
 names(temp_genes_by_pop) <- populations
 
+save.image("resultsTemperatureEffects.RData")
+
 # Save one file per population
 for (pop in populations) {
     write.table(
