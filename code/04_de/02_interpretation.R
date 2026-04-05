@@ -44,6 +44,21 @@ p2 <- pheatmap(
 print(p2)
 dev.off()
 
+cor_mat <- cor(
+    lfc_scaled[interaction_genes, ],
+    use = "pairwise.complete.obs",
+    method = "pearson"
+)
+pdf("1.correlation_plasticity.pdf")
+pheatmap(
+    cor_mat,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    annotation_col = pop_annot,
+    main = "Correlation of differential plasticity (LRT genes)"
+)
+dev.off()
+
 # -----------------------------
 # 2. Distribution of plasticity across populations (pattern prevalence)
 # -----------------------------
