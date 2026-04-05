@@ -253,9 +253,9 @@ for (i in seq_len(nrow(dir_mat))) {
 }
 
 # extract gene sets
-concordant_genes <- names(class_vec)[class_vec == "concordant"]
-discordant_genes <- names(class_vec)[class_vec == "discordant"]
+concordant_genes <- sum(class_vec == "concordant", na.rm = TRUE)
+discordant_genes <- sum(class_vec == "discordant", na.rm = TRUE)
 
 # summary
-cat("Concordant genes:", length(concordant_genes), "\n")
-cat("Discordant genes:", length(discordant_genes), "\n")
+cat("Concordant genes:", concordant_genes, "\n")
+cat("Discordant genes:", discordant_genes, "\n")
