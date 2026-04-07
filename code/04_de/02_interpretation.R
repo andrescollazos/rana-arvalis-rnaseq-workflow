@@ -34,13 +34,13 @@ colnames(lfc_scaled) <- colnames(lfc_masked)
 rownames(lfc_scaled) <- rownames(lfc_masked)
 
 # Remove genes with too few significant populations to be informative
-lfc_scaled <- lfc_scaled[rowSums(!is.na(lfc_scaled)) >= 2, ]
+# lfc_scaled <- lfc_scaled[rowSums(!is.na(lfc_scaled)) >= 2, ]
 
 # remove rows that became entirely NA or non-finite
-lfc_scaled <- lfc_scaled[
-    rowSums(is.finite(lfc_scaled), na.rm = TRUE) >= 2, ,
-    drop = FALSE
-]
+# lfc_scaled <- lfc_scaled[
+#     rowSums(is.finite(lfc_scaled), na.rm = TRUE) >= 2, ,
+#     drop = FALSE
+# ]
 
 # Column annotations from meta
 pop_annot <- meta[, c("population", "lat_group", "lineage")]
