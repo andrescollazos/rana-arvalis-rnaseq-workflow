@@ -25,6 +25,9 @@ blastp \
   -db xtrop_proteins.fasta \
   -outfmt "6 qseqid sseqid pident length evalue bitscore" \
   -evalue 1e-5 \
-  -max_target_seqs 1 \
+  -max_target_seqs 5 \
   -num_threads $SLURM_CPUS_PER_TASK \
   -out blast_results_${SLURM_JOB_ID}.tsv
+
+sort -k1,1 -k6,6gr -k5,5g blast_results_${SLURM_JOB_ID}.tsv | \
+awk '!seen[$1]++' > blast_best_${SLURM_JOB_ID}.tsv
