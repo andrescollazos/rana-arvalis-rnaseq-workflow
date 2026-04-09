@@ -11,7 +11,7 @@ UNIPROT_BATCH_SIZE = 200
 NCBI_SLEEP = 0.34
 UNIPROT_SLEEP = 0.34
 
-NCBI_API_KEY = None  # put your key here if you have one
+NCBI_API_KEY = None  # put the key here
 
 INPUT_FILE = "protein_ids.txt"
 OUTPUT_FASTA = "proteins.fa"
