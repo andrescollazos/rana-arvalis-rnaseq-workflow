@@ -12,3 +12,4 @@ analyses/*
 *.fa
 *.fasta
 *.txt
+*.csv
