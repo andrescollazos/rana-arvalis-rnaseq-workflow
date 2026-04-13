@@ -8,3 +8,7 @@ analyses/*
 *.RDataTmp
 *.lintr
 *.pdf
+*.tsv
+*.fa
+*.fasta
+*.txt
