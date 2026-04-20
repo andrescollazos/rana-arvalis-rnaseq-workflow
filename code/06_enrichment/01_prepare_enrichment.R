@@ -172,3 +172,126 @@ universe_interaction_annotated_filtered <- sort(
 )
 
 length(universe_interaction_annotated_filtered)
+
+## ============================================
+## Build the 19 enrichment gene lists
+## in the same ID space as loc_to_go
+## ============================================
+
+## Inputs assumed available:
+## - populations
+## - lfc_mat
+## - padj_mat
+## - interaction_genes
+## - class_vec
+## - universe_temp_annotated_filtered
+## - universe_interaction_annotated_filtered
+
+alpha <- 0.05
+
+## --------------------------------------------
+## 1. Per-population up/down gene lists
+##    Universe: temperature universe
+## --------------------------------------------
+
+population_gene_lists <- list()
+
+for (pop in populations) {
+    sig_up <- rownames(lfc_mat)[
+        !is.na(padj_mat[, pop]) &
+            padj_mat[, pop] < alpha &
+            !is.na(lfc_mat[, pop]) &
+            lfc_mat[, pop] > 0
+    ]
+
+    sig_down <- rownames(lfc_mat)[
+        !is.na(padj_mat[, pop]) &
+            padj_mat[, pop] < alpha &
+            !is.na(lfc_mat[, pop]) &
+            lfc_mat[, pop] < 0
+    ]
+
+    ## restrict to annotated filtered temperature universe
+    sig_up <- sort(intersect(sig_up, universe_temp_annotated_filtered))
+    sig_down <- sort(intersect(sig_down, universe_temp_annotated_filtered))
+
+    population_gene_lists[[paste0(pop, "_up")]] <- sig_up
+    population_gene_lists[[paste0(pop, "_down")]] <- sig_down
+}
+
+## --------------------------------------------
+## 2. Concordant up/down gene lists
+##    Universe: interaction universe
+## --------------------------------------------
+
+concordant_ids <- names(na.omit(class_vec[class_vec == "concordant"]))
+
+concordant_up <- concordant_ids[
+    apply(dir_mat[concordant_ids, , drop = FALSE], 1, function(x) {
+        vals <- x[!is.na(x)]
+        all(vals == 1)
+    })
+]
+
+concordant_up <- sort(intersect(
+    concordant_up,
+    universe_interaction_annotated_filtered
+))
+
+concordant_down <- concordant_ids[
+    apply(dir_mat[concordant_ids, , drop = FALSE], 1, function(x) {
+        vals <- x[!is.na(x)]
+        all(vals == -1)
+    })
+]
+
+concordant_down <- sort(intersect(
+    concordant_down,
+    universe_interaction_annotated_filtered
+))
+
+
+## --------------------------------------------
+## 3. Discordant gene list
+##    Universe: interaction universe
+## --------------------------------------------
+
+discordant <- names(class_vec)[
+    !is.na(class_vec) & class_vec == "discordant"
+]
+discordant <- sort(intersect(
+    discordant,
+    universe_interaction_annotated_filtered
+))
+
+## --------------------------------------------
+## 4. Collect all 19 lists
+## --------------------------------------------
+
+gene_lists_19 <- c(
+    population_gene_lists,
+    list(
+        concordant_up = concordant_up,
+        concordant_down = concordant_down,
+        discordant = discordant
+    )
+)
+
+length(gene_lists_19) # should be 19
+names(gene_lists_19)
+
+## --------------------------------------------
+## 5. Optional summary table
+## --------------------------------------------
+
+gene_list_sizes <- data.frame(
+    list_name = names(gene_lists_19),
+    n_genes = vapply(gene_lists_19, length, integer(1)),
+    universe = c(
+        rep("temp", length(population_gene_lists)),
+        "interaction", "interaction", "interaction"
+    ),
+    row.names = NULL
+)
+
+gene_list_sizes
