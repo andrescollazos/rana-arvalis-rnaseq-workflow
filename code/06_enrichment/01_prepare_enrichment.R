@@ -84,3 +84,91 @@ TERM2GENE_temp_filtered <- TERM2GENE_temp[
 universe_temp_annotated_filtered <- sort(unique(TERM2GENE_temp_filtered$gene))
 
 length(universe_temp_annotated_filtered)
+
+## ============================================
+## Final annotated gene universe
+## for concordant / discordant tests
+## ============================================
+
+## Inputs:
+## - interaction_genes (from LRT_interaction)
+## - loc_to_go
+##
+## Columns in loc_to_go:
+## - gene_id : original gene IDs (LOC_*)
+## - GO      : GO term IDs
+
+## 1. Raw interaction universe:
+## all genes significant in the LRT (G×E signal)
+universe_interaction_raw <- interaction_genes
+
+length(universe_interaction_raw)
+
+## 2. Clean mapping to unique gene-GO pairs
+loc_to_go_clean <- unique(loc_to_go[, c("gene_id", "GO")])
+
+## 3. Keep only annotations for interaction genes
+loc_to_go_interaction <- loc_to_go_clean[
+    loc_to_go_clean$gene_id %in% universe_interaction_raw,
+]
+
+## 4. Final annotated interaction universe:
+## interaction genes AND represented in GO mapping
+universe_interaction_annotated <- sort(unique(loc_to_go_interaction$gene_id))
+
+length(universe_interaction_annotated)
+
+## 5. Diagnostics
+n_raw_interaction <- length(universe_interaction_raw)
+n_annotated_interaction <- length(universe_interaction_annotated)
+n_not_annotated_interaction <- sum(
+    !universe_interaction_raw %in% universe_interaction_annotated
+)
+
+annotation_summary_interaction <- data.frame(
+    n_interaction_genes = n_raw_interaction,
+    n_annotated_genes = n_annotated_interaction,
+    n_unannotated_genes = n_not_annotated_interaction,
+    prop_annotated = n_annotated_interaction / n_raw_interaction
+)
+
+annotation_summary_interaction
+
+## 6. TERM2GENE restricted to interaction universe
+## This is used for concordant / discordant enrichment
+TERM2GENE_interaction <- unique(
+    loc_to_go_interaction[, c("GO", "gene_id")]
+)
+colnames(TERM2GENE_interaction) <- c("term", "gene")
+
+## 7. Term sizes within interaction universe
+term_sizes_interaction <- sort(
+    table(TERM2GENE_interaction$term),
+    decreasing = TRUE
+)
+
+term_sizes_interaction_df <- data.frame(
+    term = names(term_sizes_interaction),
+    n_genes = as.integer(term_sizes_interaction),
+    row.names = NULL
+)
+
+head(term_sizes_interaction_df)
+
+## 8. Filter very small terms (stability)
+min_size <- 10
+
+valid_terms_interaction <- term_sizes_interaction_df$term[
+    term_sizes_interaction_df$n_genes >= min_size
+]
+
+TERM2GENE_interaction_filtered <- TERM2GENE_interaction[
+    TERM2GENE_interaction$term %in% valid_terms_interaction,
+]
+
+## 9. Final filtered interaction universe
+universe_interaction_annotated_filtered <- sort(
+    unique(TERM2GENE_interaction_filtered$gene)
+)
+
+length(universe_interaction_annotated_filtered)
