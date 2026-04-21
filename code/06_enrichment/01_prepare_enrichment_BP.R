@@ -1,6 +1,5 @@
 setwd(file.path(Sys.getenv("THESIS_DIR"), "code/04_de"))
-load("resultsInteraction.RData")
-load("resultsTemperatureEffects.RData")
+load("02_interpretation.RData")
 setwd(file.path(Sys.getenv("THESIS_DIR"), "code/05_GO_annotation"))
 load("04_GO_terms_mapping.RData")
 setwd(file.path(Sys.getenv("THESIS_DIR"), "code/06_enrichment"))
@@ -12,11 +11,15 @@ setwd(file.path(Sys.getenv("THESIS_DIR"), "code/06_enrichment"))
 
 ## Inputs:
 ## - dds_group
-## - loc_to_go
+## - loc_to_go_BP
 ##
-## Columns in loc_to_go:
+## Columns in loc_to_go_BP:
 ## - gene_id   : original gene IDs (LOC_* / transcript-level gene IDs used in DE)
 ## - GO        : GO term IDs mapped via Xenopus tropicalis
+## - ONTOLOGY  : BP
+
+# Use only BP annotations
+loc_to_go <- loc_to_go_BP
 
 ## 1. Raw temperature-response universe:
 ## all genes that were actually tested in the temperature model
@@ -225,6 +228,7 @@ for (pop in populations) {
 ## --------------------------------------------
 
 concordant_ids <- names(na.omit(class_vec[class_vec == "concordant"]))
+length(concordant_ids)
 
 concordant_up <- concordant_ids[
     apply(dir_mat[concordant_ids, , drop = FALSE], 1, function(x) {
@@ -238,6 +242,8 @@ concordant_up <- sort(intersect(
     universe_interaction_annotated_filtered
 ))
 
+length(concordant_up)
+
 concordant_down <- concordant_ids[
     apply(dir_mat[concordant_ids, , drop = FALSE], 1, function(x) {
         vals <- x[!is.na(x)]
@@ -250,6 +256,7 @@ concordant_down <- sort(intersect(
     universe_interaction_annotated_filtered
 ))
 
+length(concordant_down)
 
 ## --------------------------------------------
 ## 3. Discordant gene list
@@ -259,10 +266,12 @@ concordant_down <- sort(intersect(
 discordant <- names(class_vec)[
     !is.na(class_vec) & class_vec == "discordant"
 ]
+length(discordant)
 discordant <- sort(intersect(
     discordant,
     universe_interaction_annotated_filtered
 ))
+length(discordant)
 
 ## --------------------------------------------
 ## 4. Collect all 19 lists
@@ -294,4 +303,7 @@ gene_list_sizes <- data.frame(
     row.names = NULL
 )
 
-gene_list_sizes
+View(gene_list_sizes)
+
+
+save.image("01_prepare_enrichment_BP.RData")
