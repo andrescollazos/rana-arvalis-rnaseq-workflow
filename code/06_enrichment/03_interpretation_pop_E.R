@@ -12,8 +12,8 @@ res_cd@result <- res_cd@result[res_cd@result$p.adjust < 0.05, ]
 
 res_cd_sim <- pairwise_termsim(res_cd)
 
-dotplot(res_cd_sim, showCategory = 15) +
-    ggtitle("VF genes (downregulated) — GO Biological Process enrichment") +
+dotplot(res_cd_sim, showCategory = 20) +
+    ggtitle("E genes (downregulated) — GO Biological Process enrichment") +
     theme(plot.title = element_text(hjust = 0.5))
 
 ## E_up
@@ -22,8 +22,8 @@ res_cu@result <- res_cu@result[res_cu@result$p.adjust < 0.05, ]
 
 res_cu_sim <- pairwise_termsim(res_cu)
 
-dotplot(res_cu_sim, showCategory = 15) +
-    ggtitle("VF genes (upregulated) — GO Biological Process enrichment") +
+dotplot(res_cu_sim, showCategory = 20) +
+    ggtitle("E genes (upregulated) — GO Biological Process enrichment") +
     theme(plot.title = element_text(hjust = 0.5))
 
 dev.off()
@@ -37,16 +37,16 @@ pdf(file = "MF/dotplots_E_MF_sig.pdf")
 res_cd <- ora_results_MF[["E_down"]]
 res_cd@result <- res_cd@result[res_cd@result$p.adjust < 0.05, ]
 
-dotplot(res_cd, showCategory = 15) +
-    ggtitle("VF genes (downregulated) — GO Molecular Function enrichment") +
+dotplot(res_cd, showCategory = 20) +
+    ggtitle("E genes (downregulated) — GO Molecular Function enrichment") +
     theme(plot.title = element_text(hjust = 0.5))
 
 ## E_up
 res_cu <- ora_results_MF[["E_up"]]
 res_cu@result <- res_cu@result[res_cu@result$p.adjust < 0.05, ]
 
-dotplot(res_cu, showCategory = 15) +
-    ggtitle("VF genes (upregulated) — GO Molecular Function enrichment") +
+dotplot(res_cu, showCategory = 20) +
+    ggtitle("E genes (upregulated) — GO Molecular Function enrichment") +
     theme(plot.title = element_text(hjust = 0.5))
 dev.off()
 
@@ -59,15 +59,15 @@ pdf(file = "CC/dotplots_E_CC_sig.pdf")
 res_cd <- ora_results_CC[["E_down"]]
 res_cd@result <- res_cd@result[res_cd@result$p.adjust < 0.05, ]
 
-dotplot(res_cd, showCategory = 15) +
-    ggtitle("VF genes (downregulated) — GO Cellular Component enrichment") +
+dotplot(res_cd, showCategory = 20) +
+    ggtitle("E genes (downregulated) — GO Cellular Component enrichment") +
     theme(plot.title = element_text(hjust = 0.5))
 
 ## E_up
 res_cu <- ora_results_CC[["E_up"]]
 res_cu@result <- res_cu@result[res_cu@result$p.adjust < 0.05, ]
 
-dotplot(res_cu, showCategory = 15) +
-    ggtitle("VF genes (upregulated) — GO Cellular Component enrichment") +
+dotplot(res_cu, showCategory = 20) +
+    ggtitle("E genes (upregulated) — GO Cellular Component enrichment") +
     theme(plot.title = element_text(hjust = 0.5))
 dev.off()

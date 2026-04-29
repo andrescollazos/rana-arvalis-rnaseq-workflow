@@ -5,7 +5,7 @@ load("02_ORA_enrichment_BP.RData")
 library(enrichplot)
 library(ggplot2)
 
-pdf(file = "dotplots_concordant_BP_sig_simplified.pdf")
+pdf(file = "BP/dotplots_concordant_BP_sig.pdf")
 ## concordant_down
 res_cd <- ora_results_BP[["concordant_down"]]
 res_cd@result <- res_cd@result[res_cd@result$p.adjust < 0.05, ]
@@ -32,7 +32,7 @@ rm(list = ls())
 
 load("02_ORA_enrichment_MF.RData")
 
-pdf(file = "dotplots_concordant_MF_sig.pdf")
+pdf(file = "MF/dotplots_concordant_MF_sig.pdf")
 ## concordant_down
 res_cd <- ora_results_MF[["concordant_down"]]
 res_cd@result <- res_cd@result[res_cd@result$p.adjust < 0.05, ]
@@ -54,7 +54,7 @@ rm(list = ls())
 
 load("02_ORA_enrichment_CC.RData")
 
-pdf(file = "dotplots_concordant_CC_sig.pdf")
+pdf(file = "CC/dotplots_concordant_CC_sig.pdf")
 ## concordant_down
 res_cd <- ora_results_CC[["concordant_down"]]
 res_cd@result <- res_cd@result[res_cd@result$p.adjust < 0.05, ]
