@@ -9,80 +9,19 @@ library(reshape2)
 # -----------------------------
 
 lfc_interaction <- lfc_mat[interaction_genes, ]
-padj_interaction <- padj_mat[interaction_genes, ]
+lfc_scaled <- t(scale(t(lfc_interaction)))
+lfc_scaled <- lfc_scaled[complete.cases(lfc_scaled), ]
 
-# mask non-significant Temp_effect cells
-lfc_masked <- lfc_interaction
-lfc_masked[is.na(padj_interaction) | padj_interaction >= 0.05] <- NA
-
-# row scaling using available cells only
-row_zscore <- function(x) {
-    if (all(is.na(x))) {
-        return(x)
-    }
-    mu <- mean(x, na.rm = TRUE)
-    sdv <- sd(x, na.rm = TRUE)
-    if (is.na(sdv) || sdv == 0) {
-        return(rep(0, length(x)))
-    }
-    (x - mu) / sdv
-}
-
-lfc_scaled <- t(apply(lfc_masked, 1, row_zscore))
-
-colnames(lfc_scaled) <- colnames(lfc_masked)
-rownames(lfc_scaled) <- rownames(lfc_masked)
-
-# Remove genes with too few significant populations to be informative
-# lfc_scaled <- lfc_scaled[rowSums(!is.na(lfc_scaled)) >= 2, ]
-
-# remove rows that became entirely NA or non-finite
-# lfc_scaled <- lfc_scaled[
-#     rowSums(is.finite(lfc_scaled), na.rm = TRUE) >= 2, ,
-#     drop = FALSE
-# ]
-
-# Column annotations from meta
-pop_annot <- meta[, c("population", "lat_group", "lineage")]
-pop_annot <- pop_annot[!duplicated(pop_annot$population), ]
+# Column annotations from meta (no redefinition)
+pop_annot <- unique(meta[, c("population", "lat_group", "lineage")])
+pop_annot <- pop_annot[match(colnames(lfc_scaled), pop_annot$population), ]
 rownames(pop_annot) <- pop_annot$population
 pop_annot$population <- NULL
-# reorder to match matrix columns
-pop_annot <- pop_annot[colnames(lfc_scaled), , drop = FALSE]
 
-all(rownames(pop_annot) == colnames(lfc_scaled))
-# ---------- clustering matrix ----------
-# keep display matrix with NAs, but build a separate matrix for clustering
-lfc_cluster <- lfc_scaled
-
-# simple imputation for clustering only: replace NA by row mean
-for (i in seq_len(nrow(lfc_cluster))) {
-    idx <- is.na(lfc_cluster[i, ])
-    if (any(idx)) {
-        lfc_cluster[i, idx] <- mean(lfc_cluster[i, ], na.rm = TRUE)
-    }
-}
-
-# row and column clustering
-row_dist <- dist(lfc_cluster)
-col_dist <- dist(t(lfc_cluster))
-
-row_clust <- hclust(row_dist)
-col_clust <- hclust(col_dist)
-
-pdf("1.differential_plasticity_signif.pdf")
-pheatmap(
-    lfc_scaled,
-    show_rownames = FALSE,
-    cluster_rows = row_clust,
-    cluster_cols = col_clust,
-    annotation_col = pop_annot,
-    na_col = "black",
-    main = "Differential plasticity across populations in response to temperature"
-)
-dev.off()
-
-pdf("1.differential_plasticity.pdf")
+# -----------------------------
+# 1. Differential plasticity across populations in response to temperature
+# -----------------------------
+pdf("1.differential_plasticity3.pdf")
 p <- pheatmap(
     lfc_scaled,
     show_rownames = FALSE,

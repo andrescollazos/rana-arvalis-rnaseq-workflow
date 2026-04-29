@@ -62,7 +62,7 @@ save.image("resultsTemperatureEffects.RData")
 for (pop in populations) {
     write.table(
         data.frame(gene_id = temp_genes_by_pop[[pop]]),
-        file = file.path(paste0("temperature_genes_", pop, ".tsv")),
+        file = file.path(paste0("results/temperature_genes_", pop, ".tsv")),
         sep = "\t", quote = FALSE, row.names = FALSE
     )
 }
