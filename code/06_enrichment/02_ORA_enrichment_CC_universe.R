@@ -1,6 +1,6 @@
 rm(list = ls())
 setwd(file.path(Sys.getenv("THESIS_DIR"), "code/06_enrichment"))
-load("01_prepare_BP_universe.RData")
+load("01_prepare_CC_universe.RData")
 
 ## ============================================
 ## ORA enrichment analysis
@@ -30,7 +30,7 @@ q_cutoff <- 0.05
 ## Helper function for ORA
 ## --------------------------------------------
 
-ora_results_BP <- list()
+ora_results_CC <- list()
 
 for (name in names(ora_lists_final)) {
     genes <- ora_lists_final[[name]]
@@ -45,13 +45,13 @@ for (name in names(ora_lists_final)) {
         qvalueCutoff = 1
     )
 
-    ora_results_BP[[name]] <- res
+    ora_results_CC[[name]] <- res
 }
 ## --------------------------------------------
 ## Convert results to data frames
 ## --------------------------------------------
 
-ora_tables_BP <- lapply(ora_results_BP, function(x) {
+ora_tables_CC <- lapply(ora_results_CC, function(x) {
     if (is.null(x)) {
         return(NULL)
     }
@@ -62,7 +62,7 @@ ora_tables_BP <- lapply(ora_results_BP, function(x) {
 ## Significant terms
 ## --------------------------------------------
 
-ora_tables_BP_sig <- lapply(ora_tables_BP, function(df) {
+ora_tables_CC_sig <- lapply(ora_tables_CC, function(df) {
     if (is.null(df)) {
         return(NULL)
     }
@@ -73,9 +73,9 @@ ora_tables_BP_sig <- lapply(ora_tables_BP, function(df) {
 ## Summary tables
 ## --------------------------------------------
 
-ora_summary_BP_all <- data.frame(
-    list_name = names(ora_tables_BP),
-    n_terms = vapply(ora_tables_BP, function(tab) {
+ora_summary_CC_all <- data.frame(
+    list_name = names(ora_tables_CC),
+    n_terms = vapply(ora_tables_CC, function(tab) {
         if (is.null(tab)) {
             return(NA_integer_)
         }
@@ -85,9 +85,9 @@ ora_summary_BP_all <- data.frame(
     row.names = NULL
 )
 
-ora_summary_BP_sig <- data.frame(
-    list_name = names(ora_tables_BP_sig),
-    n_terms = vapply(ora_tables_BP_sig, function(tab) {
+ora_summary_CC_sig <- data.frame(
+    list_name = names(ora_tables_CC_sig),
+    n_terms = vapply(ora_tables_CC_sig, function(tab) {
         if (is.null(tab)) {
             return(NA_integer_)
         }
@@ -97,13 +97,13 @@ ora_summary_BP_sig <- data.frame(
     row.names = NULL
 )
 
-ora_summary_BP_sig
-ora_summary_BP_all
+ora_summary_CC_sig
+ora_summary_CC_all
 
-names(ora_tables_BP_sig)
-View(ora_tables_BP_sig$Ka_full_up)
+names(ora_tables_CC_sig)
+View(ora_tables_CC_sig$Ka_full_up)
 
-View(ora_tables_BP_sig[["VF_down"]][, c("ID", "Description", "p.adjust")])
+View(ora_tables_CC_sig[["VF_down"]][, c("ID", "Description", "p.adjust")])
 
 
-save.image("02_ORA_enrichment_BP_universe.RData")
+save.image("02_ORA_enrichment_CC_universe.RData")
