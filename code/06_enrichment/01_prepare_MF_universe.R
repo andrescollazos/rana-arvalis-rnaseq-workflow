@@ -13,15 +13,15 @@ load("00_ora_input_tables.RData")
 
 ## Inputs:
 ## - dds
-## - loc_to_go_BP
+## - loc_to_go_MF
 ##
-## Columns in loc_to_go_BP:
+## Columns in loc_to_go_MF:
 ## - gene_id   : original gene IDs (LOC_* / transcript-level gene IDs used in DE)
 ## - GO        : GO term IDs mapped via Xenopus tropicalis
-## - ONTOLOGY  : BP
+## - ONTOLOGY  : MF
 
-# Use only BP annotations
-loc_to_go <- loc_to_go_BP
+# Use only MF annotations
+loc_to_go <- loc_to_go_MF
 
 # -----------------------------
 # 1. Define unified universe
@@ -92,4 +92,4 @@ ora_list_sizes <- ora_list_sizes[
 
 View(ora_list_sizes)
 
-save.image("01_prepare_BP_universe.RData")
+save.image("01_prepare_MF_universe.RData")
