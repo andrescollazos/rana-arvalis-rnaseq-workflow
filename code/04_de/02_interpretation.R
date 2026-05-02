@@ -217,6 +217,7 @@ temp_summary_table <- data.frame(
         var(abs(lfc_mat[idx, pop]))
     })
 )
+View(temp_summary_table)
 
 # -----------------------------
 # 4. Concordant vs discordant plasticity

@@ -236,6 +236,7 @@ concordant_up <- concordant_ids[
         all(vals == 1)
     })
 ]
+length(concordant_up)
 
 concordant_up <- sort(intersect(
     concordant_up,
@@ -250,6 +251,7 @@ concordant_down <- concordant_ids[
         all(vals == -1)
     })
 ]
+length(concordant_down)
 
 concordant_down <- sort(intersect(
     concordant_down,
