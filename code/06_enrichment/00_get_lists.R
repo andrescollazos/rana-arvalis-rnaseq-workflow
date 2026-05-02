@@ -3,6 +3,7 @@ setwd(file.path(Sys.getenv("THESIS_DIR"), "code/04_de"))
 load("02_interpretation.RData")
 setwd(file.path(Sys.getenv("THESIS_DIR"), "code/05_GO_annotation"))
 load("04_GO_terms_mapping.RData")
+setwd(file.path(Sys.getenv("THESIS_DIR"), "code/06_enrichment"))
 
 # 1. Create mapping table
 mapping_table <- unique(
@@ -102,19 +103,64 @@ ora_input_lists <- c(
 
 sapply(ora_input_lists, length)
 
-# 3. Merge to avoid duplication
-final_tables <- lapply(final_lists, function(ids) {
+# -----------------------------
+# Export tables with metadata
+# -----------------------------
+
+final_tables <- list()
+
+for (list_name in names(ora_input_lists)) {
+    ids <- ora_input_lists[[list_name]]
+
+    df <- data.frame(
+        gene_id = ids,
+        list_name = list_name,
+        stringsAsFactors = FALSE
+    )
+
+    # Add LFC and padj when applicable (population-based lists)
+    pop_match <- sub("_(full|unique)_(up|down)$", "", list_name)
+
+    if (pop_match %in% populations) {
+        df$log2FC <- lfc_mat[df$gene_id, pop_match]
+        df$padj <- padj_mat[df$gene_id, pop_match]
+    } else {
+        df$log2FC <- NA
+        df$padj <- NA
+    }
+
+    # Merge mapping (keep many-to-many)
     df <- merge(
-        data.frame(gene_id = ids),
+        df,
         mapping_table,
         by = "gene_id",
         all.x = TRUE
     )
-    df[!duplicated(df$gene_id), ]
-})
 
-View(final_tables$C.Fin_up)
-
-for (name in names(final_tables)) {
-    write.csv(final_tables[[name]], paste0(name, ".csv"), row.names = FALSE)
+    final_tables[[list_name]] <- df
 }
+
+sapply(final_tables, nrow)
+
+# Create output directory
+dir.create("ORA_input_tables", showWarnings = FALSE)
+
+# Export each table separately
+for (name in names(final_tables)) {
+    write.csv(
+        final_tables[[name]],
+        file = file.path("ORA_input_tables", paste0(name, ".csv")),
+        row.names = FALSE
+    )
+}
+
+# Export all tables combined
+combined_table <- do.call(rbind, final_tables)
+
+write.csv(
+    combined_table,
+    file = "ORA_input_tables/all_ORA_inputs_combined.csv",
+    row.names = FALSE
+)
+
+save.image("00_ora_input_tables.RData")

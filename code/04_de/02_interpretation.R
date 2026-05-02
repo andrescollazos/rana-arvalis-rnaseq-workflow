@@ -1,3 +1,4 @@
+setwd(file.path(Sys.getenv("THESIS_DIR"), "code/04_de"))
 load("resultsInteraction.RData")
 load("resultsTemperatureEffects.RData")
 library(pheatmap)
