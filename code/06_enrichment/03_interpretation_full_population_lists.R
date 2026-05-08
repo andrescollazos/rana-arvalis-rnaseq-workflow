@@ -15,7 +15,7 @@ build_semantic_recurrence <- function(
   list_names,
   populations,
   ont = "BP",
-  orgdb = "GO.db",
+  orgdb = "org.Hs.eg.db",
   threshold = 0.7
 ) {
     # -----------------------------
@@ -51,7 +51,7 @@ build_semantic_recurrence <- function(
     all_terms <- unique(term_df$GO)
 
     simMatrix <- calculateSimMatrix(
-        terms = all_terms,
+        all_terms,
         orgdb = orgdb,
         ont = ont,
         method = "Rel"
@@ -78,8 +78,12 @@ build_semantic_recurrence <- function(
     # reduced has:
     # term, parent, parentTerm, score, uniqueness, dispensability
 
-    reduced_map <- reduced %>%
-        select(GO = term, representative_GO = parent, representative_name = parentTerm)
+    reduced_map <- data.frame(
+        GO = rownames(reduced),
+        representative_GO = reduced$parent,
+        representative_name = reduced$parentTerm,
+        stringsAsFactors = FALSE
+    )
 
     term_df_reduced <- term_df %>%
         left_join(reduced_map, by = "GO")
@@ -134,3 +138,52 @@ build_semantic_recurrence <- function(
         matrix_recurrent = mat_recurrent
     ))
 }
+
+# Build UP semantic recurrence
+bp_up_recurrence <- build_semantic_recurrence(
+    ora_tables_sig = ora_tables_BP_sig,
+    list_names = full_up_names,
+    populations = populations,
+    ont = "BP",
+    orgdb = "org.Hs.eg.db",
+    threshold = 0.7
+)
+
+# Build DOWN semantic recurrence
+bp_down_recurrence <- build_semantic_recurrence(
+    ora_tables_sig = ora_tables_BP_sig,
+    list_names = full_down_names,
+    populations = populations,
+    ont = "BP",
+    orgdb = "org.Hs.eg.db",
+    threshold = 0.7
+)
+
+# Plot the semantic recurrence matrix
+pdf("BP/recurrent_GO_bp_full_up.pdf", width = 12, height = 10)
+p_up <- pheatmap(
+    bp_up_recurrence$matrix_recurrent,
+    cluster_rows = TRUE,
+    cluster_cols = FALSE,
+    main = "Recurrent BP modules among upregulated full lists",
+    fontsize_row = 6,
+    border_color = NA
+)
+print(p_up)
+dev.off()
+
+pdf("BP/recurrent_GO_bp_full_down.pdf", width = 12, height = 10)
+p_down <- pheatmap(
+    bp_down_recurrence$matrix_recurrent,
+    cluster_rows = TRUE,
+    cluster_cols = FALSE,
+    main = "Recurrent BP modules among downregulated full lists",
+    fontsize_row = 6,
+    border_color = NA
+)
+print(p_down)
+dev.off()
+
+# inspect reduced tables
+View(bp_up_recurrence$term_df_reduced)
+View(bp_down_recurrence$term_df_reduced)

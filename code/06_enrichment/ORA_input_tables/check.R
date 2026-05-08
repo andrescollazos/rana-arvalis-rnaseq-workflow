@@ -1,0 +1,55 @@
+rm(list = ls())
+setwd(file.path(Sys.getenv("THESIS_DIR"), "code/06_enrichment/ORA_input_tables"))
+
+# Read files
+fin_up <- read.csv("C.Fin_full_up.csv")
+fin_down <- read.csv("C.Fin_full_down.csv")
+na_up <- read.csv("NA_full_up.csv")
+na_down <- read.csv("NA_full_down.csv")
+l_up <- read.csv("L_full_up.csv")
+l_down <- read.csv("L_full_down.csv")
+ka_up <- read.csv("Ka_full_up.csv")
+ka_down <- read.csv("Ka_full_down.csv")
+nl_up <- read.csv("NL_full_up.csv")
+nl_down <- read.csv("NL_full_down.csv")
+e_up <- read.csv("E_full_up.csv")
+e_down <- read.csv("E_full_down.csv")
+vf_up <- read.csv("VF_full_up.csv")
+vf_down <- read.csv("VF_full_down.csv")
+upp_up <- read.csv("Upp_full_up.csv")
+upp_down <- read.csv("Upp_full_down.csv")
+
+con_up <- read.csv("concordant_up.csv")
+con_down <- read.csv("concordant_down.csv")
+
+# Merge pairs
+fin <- rbind(fin_up, fin_down)
+na <- rbind(na_up, na_down)
+l <- rbind(l_up, l_down)
+ka <- rbind(ka_up, ka_down)
+nl <- rbind(nl_up, nl_down)
+e <- rbind(e_up, e_down)
+vf <- rbind(vf_up, vf_down)
+upp <- rbind(upp_up, upp_down)
+
+
+con <- rbind(con_up, con_down)
+
+# Intersection by gene_id
+common_genes_fin_con <- intersect(fin$gene_id, con$gene_id)
+common_genes_na_con <- intersect(na$gene_id, con$gene_id)
+common_genes_l_con <- intersect(l$gene_id, con$gene_id)
+common_genes_ka_con <- intersect(ka$gene_id, con$gene_id)
+common_genes_nl_con <- intersect(nl$gene_id, con$gene_id)
+common_genes_e_con <- intersect(e$gene_id, con$gene_id)
+common_genes_vf_con <- intersect(vf$gene_id, con$gene_id)
+common_genes_upp_con <- intersect(upp$gene_id, con$gene_id)
+
+length(common_genes_fin_con)
+length(common_genes_na_con)
+length(common_genes_l_con)
+length(common_genes_ka_con)
+length(common_genes_nl_con)
+length(common_genes_e_con)
+length(common_genes_vf_con)
+length(common_genes_upp_con)

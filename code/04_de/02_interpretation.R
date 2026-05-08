@@ -268,5 +268,16 @@ discordant_genes <- sum(class_vec == "discordant", na.rm = TRUE)
 cat("Concordant genes:", concordant_genes, "\n")
 cat("Discordant genes:", discordant_genes, "\n")
 
+# number of contributing populations per gene
+n_support <- rowSums(!is.na(dir_mat))
+concordant_ids <- names(class_vec)[
+    !is.na(class_vec) & class_vec == "concordant"
+]
+# restrict to concordant genes
+n_support_concordant <- n_support[concordant_ids]
+table(n_support_concordant)
+
 
 save.image("02_interpretation.RData")
+
+table(meta$population, meta$temperature)
