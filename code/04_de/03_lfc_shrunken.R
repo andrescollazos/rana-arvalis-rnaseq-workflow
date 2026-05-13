@@ -84,10 +84,10 @@ sig_lfc_df <- do.call(rbind, lapply(populations, function(pop) {
     )
 }))
 
-# Order populations by n_sig (or set your preferred order)
+# Order populations by n_sig
 sig_lfc_df$population <- factor(
     sig_lfc_df$population,
-    levels = c("VF", "C.Fin", "L", "NA", "Upp", "NL", "E", "Ka") # adjust as you prefer
+    levels = c("VF", "C.Fin", "L", "NA", "Upp", "NL", "E", "Ka")
 )
 
 # Violin plot
