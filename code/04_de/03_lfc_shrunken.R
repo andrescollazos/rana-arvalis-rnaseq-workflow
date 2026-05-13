@@ -185,6 +185,189 @@ pheatmap(
     cluster_rows = TRUE,
     cluster_cols = TRUE,
     annotation_col = pop_annot,
-    main = "Correlation of differential plasticity (LRT genes)"
+    main = "Correlation of differential plasticity (LRT genes)",
+    display_numbers = TRUE,
+    number_format = "%.2f"
+)
+dev.off()
+
+
+
+# -----------------------------
+# PARAMETERS
+# -----------------------------
+top_n <- 100
+
+# -----------------------------
+# HELPER FUNCTIONS
+# -----------------------------
+
+# row-wise z-score scaling
+scale_rows <- function(mat) {
+    t(apply(mat, 1, function(x) {
+        if (all(is.na(x))) {
+            return(rep(NA_real_, length(x)))
+        }
+        s <- sd(x, na.rm = TRUE)
+        m <- mean(x, na.rm = TRUE)
+
+        if (is.na(s) || s == 0) {
+            return(rep(0, length(x)))
+        } else {
+            return((x - m) / s)
+        }
+    }))
+}
+
+# average pairwise absolute difference across populations
+avg_pairwise_diff <- function(x) {
+    x <- x[!is.na(x)]
+    if (length(x) < 2) {
+        return(NA_real_)
+    }
+    mean(dist(x, method = "manhattan"))
+}
+
+# -----------------------------
+# Top 100 genes for all the interaction genes
+# -----------------------------
+
+# -----------------------------
+# SCALAR 1: variance across populations
+# -----------------------------
+var_score <- apply(lfc_interaction, 1, function(x) {
+    if (sum(!is.na(x)) < 2) {
+        return(NA_real_)
+    }
+    var(x, na.rm = TRUE)
+})
+
+top_var_genes <- names(sort(var_score, decreasing = TRUE))[1:min(top_n, sum(!is.na(var_score)))]
+lfc_top_var <- lfc_interaction[top_var_genes, , drop = FALSE]
+lfc_top_var_scaled <- scale_rows(lfc_top_var)
+
+pdf("3.top_100_DE_variance_shrunken.pdf")
+p <- pheatmap(
+    lfc_top_var_scaled,
+    show_rownames = FALSE,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    annotation_col = pop_annot,
+    main = paste0("Top ", nrow(lfc_top_var_scaled), " interaction genes by variance across populations")
+)
+print(p)
+dev.off()
+
+cor_mat_top_var <- cor(
+    lfc_top_var_scaled,
+    use = "pairwise.complete.obs",
+    method = "pearson"
+)
+
+pdf("3.top_100_DE_variance_correlation_shrunken.pdf")
+pheatmap(
+    cor_mat_top_var,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    annotation_col = pop_annot,
+    display_numbers = TRUE,
+    number_format = "%.2f",
+    main = paste0(
+        "Correlation of differential plasticity\n(Top ",
+        nrow(lfc_top_var_scaled),
+        " interaction genes by variance, shrunken)"
+    )
+)
+dev.off()
+
+# -----------------------------
+# SCALAR 2: mean absolute deviation from gene mean
+# -----------------------------
+mad_score <- apply(lfc_interaction, 1, function(x) {
+    x2 <- x[!is.na(x)]
+    if (length(x2) < 2) {
+        return(NA_real_)
+    }
+    mean(abs(x2 - mean(x2)))
+})
+
+top_mad_genes <- names(sort(mad_score, decreasing = TRUE))[1:min(top_n, sum(!is.na(mad_score)))]
+lfc_top_mad <- lfc_interaction[top_mad_genes, , drop = FALSE]
+lfc_top_mad_scaled <- scale_rows(lfc_top_mad)
+
+pdf("3.top_100_DE_mad_shrunken.pdf")
+p <- pheatmap(
+    lfc_top_mad_scaled,
+    show_rownames = FALSE,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    annotation_col = pop_annot,
+    main = paste0("Top ", nrow(lfc_top_mad_scaled), " interaction genes by mean absolute deviation, shrunken")
+)
+print(p)
+dev.off()
+
+cor_mat_top_mad <- cor(
+    lfc_top_mad_scaled,
+    use = "pairwise.complete.obs",
+    method = "pearson"
+)
+
+pdf("3.top_100_DE_mad_correlation_shrunken.pdf")
+pheatmap(
+    cor_mat_top_mad,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    annotation_col = pop_annot,
+    display_numbers = TRUE,
+    number_format = "%.2f",
+    main = paste0(
+        "Correlation of differential plasticity\n(Top ",
+        nrow(lfc_top_mad_scaled),
+        " interaction genes by mean absolute deviation, shrunken)"
+    )
+)
+dev.off()
+
+# -----------------------------
+# SCALAR 3: average pairwise absolute difference
+# -----------------------------
+pairdiff_score <- apply(lfc_interaction, 1, avg_pairwise_diff)
+
+top_pairdiff_genes <- names(sort(pairdiff_score, decreasing = TRUE))[1:min(top_n, sum(!is.na(pairdiff_score)))]
+lfc_top_pairdiff <- lfc_interaction[top_pairdiff_genes, , drop = FALSE]
+lfc_top_pairdiff_scaled <- scale_rows(lfc_top_pairdiff)
+
+pdf("3.top_100_DE_pairdiff.pdf")
+p <- pheatmap(
+    lfc_top_pairdiff_scaled,
+    show_rownames = FALSE,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    annotation_col = pop_annot,
+    main = paste0("Top ", nrow(lfc_top_pairdiff_scaled), " interaction genes by average pairwise difference")
+)
+print(p)
+dev.off()
+
+cor_mat_top_pairdiff <- cor(
+    lfc_top_pairdiff_scaled,
+    use = "pairwise.complete.obs",
+    method = "pearson"
+)
+
+pdf("3.top_100_DE_pairdiff_correlation_shrunken.pdf")
+pheatmap(
+    cor_mat_top_pairdiff,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    annotation_col = pop_annot,
+    display_numbers = TRUE,
+    number_format = "%.2f",
+    main = paste0(
+        "Correlation of differential plasticity\n(Top ",
+        nrow(lfc_top_pairdiff_scaled),
+        " interaction genes by average pairwise difference, shrunken)"
+    )
 )
 dev.off()
