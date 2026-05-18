@@ -96,10 +96,7 @@ p <- ggplot() +
         shape = "Region"
     ) +
     scale_colour_manual(
-        values = c(
-            "North" = "#f35050", # light red
-            "South" = "#3892ed" # light blue
-        ),
+        values = latitude_colors,
         name = "Latitude"
     ) +
     theme_classic() +
