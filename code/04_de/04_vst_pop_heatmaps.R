@@ -1,3 +1,4 @@
+rm(list = ls())
 setwd(file.path(Sys.getenv("THESIS_DIR"), "code/04_de"))
 
 load("resultsTemperatureEffects.RData")
@@ -35,12 +36,17 @@ for (pop in populations) {
     )
     rownames(annot_col) <- samples_pop
 
-    pdf(paste0(pop, "_sign_temp_responsive_genes.pdf"))
+    annotation_colors <- list(
+        temperature = temperature_colors
+    )
+
+    pdf(paste0("results/population-specific/", pop, "_heatmap_temp_sig.pdf"))
     pheatmap(
         mat_pop_scaled,
         cluster_rows = TRUE,
         cluster_cols = TRUE,
         annotation_col = annot_col,
+        annotation_colors = annotation_colors,
         show_rownames = FALSE,
         main = paste0(pop, ": significant temperature-responsive genes")
     )
@@ -108,6 +114,10 @@ for (pop in populations) {
                 min.segment.length = 0,
                 max.overlaps = Inf,
                 show.legend = FALSE
+            ) +
+            scale_color_manual(
+                values = temperature_colors_bold,
+                drop = FALSE
             ) +
             scale_shape_manual(
                 values = pch_map,

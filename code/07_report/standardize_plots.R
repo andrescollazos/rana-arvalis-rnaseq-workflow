@@ -25,3 +25,8 @@ temperature_colors <- c(
     "15" = "#a6cee3",
     "20" = "#fb9a99"
 )
+
+temperature_colors_bold <- c(
+    "15" = "#0899e7",
+    "20" = "#f61f1b"
+)
