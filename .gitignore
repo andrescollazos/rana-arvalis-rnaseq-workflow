@@ -13,3 +13,5 @@ analyses/*
 *.fasta
 *.txt
 *.csv
+*.png
+*.tiff
